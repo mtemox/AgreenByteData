@@ -11,6 +11,11 @@ import {
 import StatsPanel from './components/StatsPanel';
 import { calculateVPD, getVPDStatus } from './utils/metrics';
 
+import GaugeWidget from './components/GaugeWidget';
+import CircularProgress from './components/CircularProgress';
+import MiniChart from './components/MiniChart';
+import StatusIndicator from './components/StatusIndicator';
+
 const ICONS = {
   field1: Thermometer,
   field2: Droplets,
@@ -151,6 +156,64 @@ function App() {
             );
           })}
         </div>
+
+        {/* Sección de Widgets Adicionales - Después del grid de sensores */}
+        {latestFeed && data.length > 0 && (
+          <>
+            <div className="mb-6 flex items-center gap-3">
+              <div className="w-1 h-6 rounded-full bg-gradient-to-b from-purple-500 to-blue-500" />
+              <h2 className="text-xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+                Monitoreo en Tiempo Real
+              </h2>
+              <div className="flex-1 h-px bg-gradient-to-r from-slate-700 to-transparent" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+              
+              {/* Velocímetro de Temperatura */}
+              <GaugeWidget
+                value={parseFloat(latestFeed.field1) || 0}
+                min={0}
+                max={50}
+                unit="°C"
+                title="Temperatura Interior"
+                color="#ef4444"
+                dangerZone={35}
+                optimalZone={[18, 28]}
+              />
+
+              {/* Progreso Circular de Humedad */}
+              <CircularProgress
+                value={parseFloat(latestFeed.field2) || 0}
+                max={100}
+                title="Nivel de Humedad"
+                subtitle="Porcentaje actual"
+                color="#3b82f6"
+                icon={Droplets}
+              />
+
+              {/* Mini Chart de Luz */}
+              <MiniChart
+                data={data.slice(-20)}
+                dataKey="field4"
+                title="Intensidad Lumínica"
+                value={latestFeed.field4}
+                unit="lux"
+                color="#f59e0b"
+              />
+
+              {/* Mini Chart de Presión */}
+              <MiniChart
+                data={data.slice(-20)}
+                dataKey="field5"
+                title="Presión Atmosférica"
+                value={latestFeed.field5}
+                unit="hPa"
+                color="#8b5cf6"
+              />
+            </div>
+          </>
+        )}
 
         {/* Panel de Inteligencia Agronómica (VPD) */}
         {latestFeed && (
